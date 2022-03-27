@@ -10,7 +10,7 @@ _G["AltManager2"] = AltManager;
 
 local Dialog = LibStub("LibDialog-1.0")
 
-local sizey = 410;
+local sizey = 470;
 local instances_y_add = 45;
 local xoffset = 0;
 local yoffset = 40;
@@ -24,22 +24,8 @@ local remove_button_size = 12;
 local min_x_size = 300;
 
 local min_level = 60;
-local mythic_done_label = "Highest M+"
-local mythic_rewards_label = "M+ Rewards"
-local mythic_keystone_label = "Keystone"
-local worldboss_label = "World Boss"
-local conquest_label = "Conquest"
-local conquest_earned_label = "Conquest Earned"
-local renown_label = "Renown"
-local soul_ash_label = "Soul Ash"
-local soul_cinders_label = "Soul Cinders"
-local stygia_label = "Stygia"
-local stygian_ember_label = "Stygian Ember"
-local reservoir_anima_label = "Stored Anima"
-local valor_label = "Valor Points"
-local research_label = "Cataloged Research"
 
-local VERSION = "1.0.3"
+local VERSION = "1.0.4"
 
 local function GetCurrencyAmount(id)
 	local info = C_CurrencyInfo.GetCurrencyInfo(id)
@@ -106,7 +92,7 @@ do
 	main_frame.background = main_frame:CreateTexture(nil, "BACKGROUND");
 	main_frame.background:SetAllPoints();
 	main_frame.background:SetDrawLayer("ARTWORK", 1);
-	main_frame.background:SetColorTexture(0, 0, 0, 0.5);
+	main_frame.background:SetColorTexture(0, 0, 0, 0.6);
 	
 	-- Set frame position
 	main_frame:ClearAllPoints();
@@ -478,6 +464,7 @@ function AltManager:CollectData(do_artifact)
 		[61815] = "Oranomoros",
 		[61816] = "Mortanis", 
 		[64531] = "Mor'geth",
+		[65143] = "Antros",
 	}
 	local worldboss = false
 	for k,v in pairs(world_boss_quests)do
@@ -516,9 +503,11 @@ function AltManager:CollectData(do_artifact)
 	char_table.renown = C_CovenantSanctumUI.GetRenownLevel();
 	char_table.soul_ash = GetCurrencyAmount(1828);
 	char_table.soul_cinders = GetCurrencyAmount(1906);
+	char_table.cosmic_flux = GetCurrencyAmount(2009);
 	char_table.stygia = GetCurrencyAmount(1767);
 	char_table.valor = GetCurrencyAmount(1191);
 	char_table.research = GetCurrencyAmount(1931);
+	char_table.cyphers = GetCurrencyAmount(1979);
 	char_table.stygian_ember = GetCurrencyAmount(1977);
 	char_table.stored_anima = GetCurrencyAmount(1813);
 
@@ -750,31 +739,37 @@ function AltManager:CreateContent()
 			font = "Fonts\\FRIZQT__.TTF",
 			remove_button = function(alt_data) return self:CreateRemoveButton(function() AltManager:RemoveCharacterByGuid(alt_data.guid) end) end
 		},
+
 		mplus = {
-			order = 3,
-			label = mythic_done_label,
+			order = 3.1,
+			label = "Highest M+",
 			data = function(alt_data) return self:MythicRunHistoryString(alt_data) end, 
 		},
 		keystone = {
-			order = 4,
-			label = mythic_keystone_label,
+			order = 3.2,
+			label = "Keystone",
 			data = function(alt_data) return (dungeons[alt_data.dungeon] or alt_data.dungeon) .. " +" .. tostring(alt_data.level); end,
+		},
+		valor = {
+			order = 3.3,
+			label = "Valor points",
+			data = function(alt_data) return tostring(alt_data.valor or "0") end,
 		},
 
 		fake_just_for_offset_1 = {
-			order = 5,
+			order = 4,
 			label = "",
 			data = function(alt_data) return " " end,
 		},
 
 		renown = {
-			order = 5.1,
-			label = renown_label,
+			order = 4.1,
+			label = "Renown",
 			data = function(alt_data) return tostring(alt_data.renown or "?") end,
 		},
 		stored_anima = {
-			order = 5.2,
-			label = reservoir_anima_label,
+			order = 4.2,
+			label = "Stored anima",
 			data = function(alt_data) return tostring(alt_data.stored_anima or "0") end,
 		},
 
@@ -786,33 +781,18 @@ function AltManager:CreateContent()
 
 		soul_ash = {
 			order = 6.1,
-			label = soul_ash_label,
+			label = "Soul Ash",
 			data = function(alt_data) return tostring(alt_data.soul_ash or "0") end,
 		},
 		soul_cinders = {
 			order = 6.2,
-			label = soul_cinders_label,
+			label = "Soul Cinders",
 			data = function(alt_data) return tostring(alt_data.soul_cinders or "0") end,
 		},
-		stygia = {
+		cosmic_flux = {
 			order = 6.3,
-			label = stygia_label,
-			data = function(alt_data) return tostring(alt_data.stygia or "0") end,
-		},
-		stygian_ember = {
-			order = 6.4,
-			label = stygian_ember_label,
-			data = function(alt_data) return tostring(alt_data.stygian_ember or "0") end,
-		},
-		valor = {
-			order = 6.5,
-			label = valor_label,
-			data = function(alt_data) return tostring(alt_data.valor or "0") end,
-		},
-		research = {
-			order = 6.6,
-			label = research_label,
-			data = function(alt_data) return tostring(alt_data.research or "0") end,
+			label = "Cosmic Flux",
+			data = function(alt_data) return tostring(alt_data.cosmic_flux or "0") end,
 		},
 
 		fake_just_for_offset_3 = {
@@ -821,37 +801,59 @@ function AltManager:CreateContent()
 			data = function(alt_data) return " " end,
 		},
 
-		worldbosses = {
-			order = 7.9,
-			label = worldboss_label,
-			data = function(alt_data) return alt_data.worldboss and (alt_data.worldboss .. " killed") or "-" end,
+		stygia = {
+			order = 7.1,
+			label = "Stygia",
+			data = function(alt_data) return tostring(alt_data.stygia or "0") end,
 		},
-		conquest_pts = {
-			order = 8,
-			label = conquest_label,
-			data = function(alt_data) return (alt_data.conquest_total and tostring(alt_data.conquest_total) or "0")  end,
+		stygian_ember = {
+			order = 7.1,
+			label = "Stygian Ember",
+			data = function(alt_data) return tostring(alt_data.stygian_ember or "0") end,
 		},
-		conquest_cap = {
-			order = 9,
-			label = conquest_earned_label,
-			data = function(alt_data) return (alt_data.conquest_earned and (tostring(alt_data.conquest_earned) .. " / " .. C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CONQUEST_CURRENCY_ID).maxQuantity) or "?")  end, --   .. "/" .. "500"
+		research = {
+			order = 7.3,
+			label = "Cataloged Research",
+			data = function(alt_data) return tostring(alt_data.research or "0") end,
+		},
+		cypher = {
+			order = 7.4,
+			label = "Cyphers of the First Ones",
+			data = function(alt_data) return tostring(alt_data.cyphers or "0") end,
 		},
 
 		fake_just_for_offset_4 = {
-			order = 10,
+			order = 8,
 			label = "",
 			data = function(alt_data) return " " end,
 		},
 
+		worldbosses = {
+			order = 8.1,
+			label = "World bosses",
+			data = function(alt_data) return alt_data.worldboss and (alt_data.worldboss .. " killed") or "-" end,
+		},
 		castle_sanctum = {
-			order = 11,
+			order = 8.2,
 			label = "Sanctum of Domination",
 			data = function(alt_data) return self:MakeRaidString(alt_data.sanctum_normal, alt_data.sanctum_heroic, alt_data.sanctum_mythic) end
 		},
+
 		fake_just_for_offset_5 = {
-			order = 12,
+			order = 9,
 			label = "",
 			data = function(alt_data) return " " end,
+		},
+
+		conquest_pts = {
+			order = 9.1,
+			label = "Conquest",
+			data = function(alt_data) return (alt_data.conquest_total and tostring(alt_data.conquest_total) or "0")  end,
+		},
+		conquest_cap = {
+			order = 9.2,
+			label = "Conquest earned",
+			data = function(alt_data) return (alt_data.conquest_earned and (tostring(alt_data.conquest_earned) .. " / " .. C_CurrencyInfo.GetCurrencyInfo(Constants.CurrencyConsts.CONQUEST_CURRENCY_ID).maxQuantity) or "?")  end, --   .. "/" .. "500"
 		},
 
 	}
