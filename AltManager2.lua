@@ -41,6 +41,8 @@ local dungeons = {
 	[380] = "SD",
 	[381] = "SoA",
 	[382] = "ToP",
+	[391] = "STRT",
+	[392] = "GMBT",
  };
 
 SLASH_ALTMANAGER1 = "/alts";
