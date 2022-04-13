@@ -17,7 +17,7 @@ local yoffset = 40;
 local addon = "AltManager2";
 local numel = table.getn;
 
-local per_alt_x = 120;
+local per_alt_x = 140;
 local ilvl_text_size = 8;
 local remove_button_size = 12;
 
@@ -694,15 +694,11 @@ function AltManager:MythicRunHistoryString(alt_data)
 		return "None"
 	end
 	local sorted_history, thresholds, max_threshold = AltManager:ProduceRelevantMythics(alt_data.run_history);
-	local result = "{"
+	local result = ""
 	local first = true;
 	for run = 1, max_threshold do
 		if #sorted_history >= run then
-			if first then result = result .. " " end
 			if not first then result = result .. ", " end
-			if run == 6 and #sorted_history > 5 then
-				result = result .. "\n"
-			end
 
 			if thresholds[run] then
 				result = result .. "|cFF00FF00"
@@ -715,7 +711,6 @@ function AltManager:MythicRunHistoryString(alt_data)
 			first = false;
 		end	
 	end
-	result = result .. " }"
 	return result
 end
 
