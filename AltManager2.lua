@@ -249,9 +249,10 @@ function AltManager:ValidateReset()
 			char_table.expires = self:GetNextWeeklyResetTime();
 			char_table.worldboss = false;
 			
-			char_table.sanctum_normal = 0;
-			char_table.sanctum_heroic = 0;
-			char_table.sanctum_mythic = 0;
+			char_table.sfo_lfr = 0;
+			char_table.sfo_normal = 0;
+			char_table.sfo_heroic = 0;
+			char_table.sfo_mythic = 0;
 
 		end
 	end
@@ -449,14 +450,18 @@ function AltManager:CollectData(do_artifact)
 	local normal_difficulty = 14
 	local heroic_difficulty = 15
 	local mythic_difficulty = 16
+	local lfr_difficulty    = 17
 	for i = 1, saves do
 		local name, _, reset, difficulty, _, _, _, _, _, _, bosses, killed_bosses = GetSavedInstanceInfo(i);
 
-		-- Castle sanctum IDs = {1735, 1744, 1745, 1746, 1747, 1748, 1750, 1755}
-		if name == C_Map.GetMapInfo(1998).name and reset > 0 then
-			if difficulty == normal_difficulty then sanctum_normal = killed_bosses end
-			if difficulty == heroic_difficulty then sanctum_heroic = killed_bosses end
-			if difficulty == mythic_difficulty then sanctum_mythic = killed_bosses end
+		-- Castle Nathria IDs = {1735, 1744, 1745, 1746, 1747, 1748, 1750, 1755}
+		-- Sanctum of Dominion IDs = {1998, 1999, 2000, 2001, 2002, 2003, 2004}
+		-- Sepulcher of the First Ones IDs = {2047, 2048, 2049, 2050, 2051, 2052, 2055, 2061}
+		if name == C_Map.GetMapInfo(2047).name and reset > 0 then
+			if difficulty == lfr_difficulty    then sfo_lfr    = killed_bosses end
+			if difficulty == normal_difficulty then sfo_normal = killed_bosses end
+			if difficulty == heroic_difficulty then sfo_heroic = killed_bosses end
+			if difficulty == mythic_difficulty then sfo_mythic = killed_bosses end
 		end
 	end
 
@@ -513,9 +518,10 @@ function AltManager:CollectData(do_artifact)
 	char_table.stygian_ember = GetCurrencyAmount(1977);
 	char_table.stored_anima = GetCurrencyAmount(1813);
 
-	char_table.sanctum_normal = sanctum_normal;
-	char_table.sanctum_heroic = sanctum_heroic;
-	char_table.sanctum_mythic = sanctum_mythic;
+	char_table.sfo_lfr = sfo_lfr;
+	char_table.sfo_normal = sfo_normal;
+	char_table.sfo_heroic = sfo_heroic;
+	char_table.sfo_mythic = sfo_mythic;
 
 	char_table.expires = self:GetNextWeeklyResetTime();
 	char_table.data_obtained = time();
@@ -830,10 +836,10 @@ function AltManager:CreateContent()
 			label = "World bosses",
 			data = function(alt_data) return alt_data.worldboss and (alt_data.worldboss .. " killed") or "-" end,
 		},
-		castle_sanctum = {
+		sfo = {
 			order = 8.2,
-			label = "Sanctum of Domination",
-			data = function(alt_data) return self:MakeRaidString(alt_data.sanctum_normal, alt_data.sanctum_heroic, alt_data.sanctum_mythic) end
+			label = "Sepulcher of the First Ones",
+			data = function(alt_data) return self:MakeRaidString(alt_data.sfo_lfr, alt_data.sfo_normal, alt_data.sfo_heroic, alt_data.sfo_mythic) end
 		},
 
 		fake_just_for_offset_5 = {
@@ -884,7 +890,9 @@ function AltManager:CreateContent()
 
 end
 
-function AltManager:MakeRaidString(normal, heroic, mythic)
+function AltManager:MakeRaidString(lfr, normal, heroic, mythic)
+	print(lfr)
+	if not lfr    then lfr    = 0 end
 	if not normal then normal = 0 end
 	if not heroic then heroic = 0 end
 	if not mythic then mythic = 0 end
@@ -895,6 +903,8 @@ function AltManager:MakeRaidString(normal, heroic, mythic)
 	if heroic > 0 then string = string .. tostring(heroic) .. "H" end
 	if normal > 0 and (mythic > 0 or heroic > 0) then string = string .. "-" end
 	if normal > 0 then string = string .. tostring(normal) .. "N" end
+	if lfr > 0 and (mythic > 0 or heroic > 0 or normal > 0) then string = string .. "-" end
+	if lfr > 0 then string = string .. tostring(lfr) .. "L" end
 	return string == "" and "-" or string
 end
 
