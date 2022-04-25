@@ -891,7 +891,6 @@ function AltManager:CreateContent()
 end
 
 function AltManager:MakeRaidString(lfr, normal, heroic, mythic)
-	print(lfr)
 	if not lfr    then lfr    = 0 end
 	if not normal then normal = 0 end
 	if not heroic then heroic = 0 end
